@@ -19,15 +19,18 @@ interface FormValues {
     tag: string;
 }
 
+const ALLOWED_TAGS = ["Todo", "Work", "Personal", "Meeting", "Shopping"] as const;
+
 const NoteSchema = Yup.object().shape({
   title: Yup.string()
     .min(3, "Title must be at least 3 characters!")
     .max(50, "Title is too long!")
         .required("Title is required!"),
   content: Yup.string()
-    .min(7, "Content is too short!")
-    .required("Content is required!"),  
+    .max(500, "Content cannot exceed 500 characters!")
+    .optional(),  
   tag: Yup.string()
+    .oneOf(ALLOWED_TAGS, "Invalid tag selection")
     .required("Tag is required!"),
 });
 
