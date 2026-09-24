@@ -7,7 +7,7 @@ interface SearchBoxProps {
 }
 
 const SearchBox = ({ onSearch, value }: SearchBoxProps) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearch(e.target.value)
   }
     return <input

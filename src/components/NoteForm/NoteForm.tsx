@@ -3,10 +3,13 @@ import css from './NoteForm.module.css'
 //import ReactDOM from 'react-dom';
 import { Formik, Field, Form , ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query' 
+import { createNote } from '../../services/noteService'
+import type { NewNoteData } from '../../types/note';
+
+
 
 interface NoteFormProps {
-    handleCreate: (title: string, content: string, tag: string) => void;
-    isLoading: boolean;
     onClose: () => void;
 }
 
@@ -28,11 +31,17 @@ const NoteSchema = Yup.object().shape({
     .required("Tag is required!"),
 });
 
-export default function NoteForm({ handleCreate, isLoading, onClose }: NoteFormProps) {
-    //const fieldId = useId();
-    //const [title, setTitle] = useState('');
-    //const [content, setContent] = useState('');
-    //const [tag, setTag] = useState('Todo');
+export default function NoteForm({ onClose }: NoteFormProps) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({ 
+    mutationFn: (newNoteData: NewNoteData) => createNote(newNoteData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'], }); 
+      onClose();
+    },
+    onError: (error) => { console.error('Помилка при create Note:', error); }
+  });
 
     const initialValues: FormValues = {
         title: '',
@@ -41,11 +50,12 @@ export default function NoteForm({ handleCreate, isLoading, onClose }: NoteFormP
     };
 
     const handleSubmit = (values: FormValues, {resetForm}: {resetForm: () => void}) => {
-        handleCreate(values.title, values.content, values.tag);
+      mutation.mutate({
+        title: values.title,
+        content: values.content,
+        tag: values.tag
+      });
         resetForm();
-
-        //if (!title.trim() || !content.trim()) return;
-        //handleCreate(title, content, tag);
     };
 
 
@@ -105,7 +115,7 @@ export default function NoteForm({ handleCreate, isLoading, onClose }: NoteFormP
     <button
                     type="submit"
                     className={css.submitButton}
-                    disabled={isLoading}
+                    disabled={mutation.isPending}
     >
       Create note
     </button>

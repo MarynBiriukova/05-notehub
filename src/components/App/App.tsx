@@ -1,5 +1,5 @@
 import { useDebouncedCallback } from 'use-debounce'
-import { useQuery, keepPreviousData, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, keepPreviousData} from '@tanstack/react-query';// useMutation,, useQueryClient 
 import { useState, useEffect } from 'react'
 import css from './App.module.css'
 import NoteList from '../NoteList/NoteList.tsx';
@@ -11,8 +11,7 @@ import Loader from '../Loader/Loader.tsx';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 
-import { fetchNotes, deleteNote , createNote } from '../../services/noteService';
-import type {NewNoteData} from '../../types/note';// Note , 
+import { fetchNotes} from '../../services/noteService';
 import { Toaster, toast } from 'react-hot-toast';
 
 const toastConfig = {
@@ -35,24 +34,14 @@ function App() {
   const closeModal = () => setIsModalOpen(false)
 
 
-  /*********************************************************** */
-  const queryClient = useQueryClient();
-
-  /*********************************************************** */
-
-
   const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ['notes', query, currentPage],
     queryFn: async () => {
       const res = await fetchNotes(query, currentPage);
-      // if (!res?.results?.length) {
-      // toast.error('No movies found for your request.', { ...toastConfig });
-      //}
 
       return res;
     },
 
-    //enabled: !!query.trim(),
     placeholderData: keepPreviousData,
   });
 
@@ -72,53 +61,7 @@ function App() {
     setInputValue(text);
     debouncedSetQuery(text);
   };
- /* const handleSearch = useDebouncedCallback((text: string) => {
-    if (text.includes('!')) return;
-    setQuery(text);
-    setCurrentPage(1);
-  }, 1000);*/
 
-  /********************************************************** */
-
-   const mutation = useMutation({
-    mutationFn: (newNoteData: NewNoteData) => createNote(newNoteData),
-    onSuccess: () => {
-      // console.log('onSuccess')
-      queryClient.invalidateQueries({
-        queryKey: ['notes'],
-      })
-      closeModal()
-    },
-    onError: () => {
-      // toast.error()
-    },
-  })
-
-  const handleCreateMutation = (title: string, content: string, tag: string) => {
-    mutation.mutate({
-      title,
-      content,
-      tag
-    })
-  }
-
-/********************************************************** */
-const deleteNoteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['notes'],
-      })
-      // toast.success('Deleted...')
-    },
-    onError: () => {
-      // toast.error()
-    },
-  })
-
-  const handleDeleteMutation = (id: string) => {
-    deleteNoteMutation.mutate(id)
-  }
 
 /********************************************************** */
 
@@ -147,13 +90,11 @@ const deleteNoteMutation = useMutation({
        {isSuccess && data && data.notes && data.notes.length > 0 && ( 
       <NoteList
         notes={data?.notes || []}
-        handleDelete={handleDeleteMutation}
-
       />
 )}
 {isModalOpen && (
         <Modal onClose={closeModal}>
-          <NoteForm handleCreate={handleCreateMutation} isLoading={mutation.isPending} onClose={closeModal} />
+          <NoteForm onClose={closeModal} />
         </Modal>
       )}
 

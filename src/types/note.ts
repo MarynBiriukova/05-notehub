@@ -5,7 +5,7 @@ export interface Note {
     createdAt: string;
     updatedAt: string;
     tag: string;
-    completed: boolean;
+    //completed: boolean;
 }
 
 

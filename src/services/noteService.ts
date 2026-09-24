@@ -1,26 +1,11 @@
-//fetchNotes();
-//createNote();
-//deleteNote();
 
 import axios, { type AxiosResponse } from 'axios';
 import type {NewNoteData, Note } from '../types/note';
 
-
-//import type { NewTaskData, Task, UpdatedTaskData } from '../types/task';
-
-
-
 const myKey = import.meta.env.VITE_NOTEHUB_TOKEN;
 
-axios.defaults.baseURL = 'https://notehub-public.goit.study/api'//
+axios.defaults.baseURL = 'https://notehub-public.goit.study/api';
 axios.defaults.headers.common['Authorization'] = `Bearer ${myKey}`;
-
-/*export interface TMDBResponse {
-  page: number;
-  results: Movie[];
-  total_pages: number;
-  total_results: number;
-}*/
 
 interface FetchNotesResponse {
   notes: Note[];
@@ -45,24 +30,20 @@ export const fetchNotes = async (query: string, page: number = 1): Promise<Fetch
     params: queryParams,
     headers: {
       accept: 'application/json',
-      //Authorization: `Bearer ${myKey}`
     }
     };
     
     const response: AxiosResponse<FetchNotesResponse> = await axios.request<FetchNotesResponse>(options);
   
-  return response.data;//.results || [];
+  return response.data;
 };
 
-export const deleteNote = async (id: string) => {
-  const res = await axios.delete<void>(`/notes/${id}`)
+export const deleteNote = async (id: string): Promise<Note> => {
+  const res = await axios.delete<Note>(`/notes/${id}`)
   return res.data
 }
 
-export const createNote = async (newNoteData: NewNoteData) => {
+export const createNote = async (newNoteData: NewNoteData): Promise<Note> => {
   const res = await axios.post<Note>('/notes', newNoteData)
   return res.data
 }
-
-
-
